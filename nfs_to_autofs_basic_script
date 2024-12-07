@@ -1,0 +1,49 @@
+#!/bin/bash
+
+### setup on server
+### maybe add in dnf installs for server side
+
+echo "First we will set up the server's NFS"
+
+read -p "What NFS server directory do you want to share?	"	nfs_server_share
+read -p "What is the hostname or IP of the client(s) you want to share to? '*' for every host	"	client_ip
+read -p "What permissions do you want the directory to have? ro, rw, sync, no_root_squash...	"	server_side_perms
+
+echo "$nfs_server_share		$client_ip($server_side_perms)" >> /etc/exports
+
+exportfs -avr
+
+### maybe configure the firewall rules
+
+
+
+echo "Now we will set up the clients AutoFS"
+
+### ssh from server to client to setup client
+
+ssh $user@$client_ip
+
+### maybe add more dnf installs for client side
+
+showmount -e ### to see what client can pull
+
+### setup on client
+
+read -p "What is the absolute path of the client directory to automount the server NFS share?	" client_access
+read -p "What is the directory you will access these files called?	" dir_name
+read -p "What is the IP address of the NFS server?	" server_ip
+read -p "What permissions will the autofs have? ro, rw, sync, no_root_squash...     "
+
+echo "$client_access			/etc/auto.misc" >> /etc/auto.master
+echo "$dir_name      -fstype=nfs, $client_side_perms	$server_ip:/$nfs_server_share" >> /etc/auto.misc
+
+systemctl enable --now autofs
+systemctl restart autofs
+systemctl status autofs
+
+pwd
+ls -l $client_access/$dir_name
+
+### test
+
+
