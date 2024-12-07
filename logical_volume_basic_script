@@ -1,0 +1,25 @@
+#!/bin/bash
+
+echo "We will create a Logical Volume!"
+
+read -p "What are the Physical Volumes you want to use?     " pv
+
+pvcreate $pv
+pvs $pv
+pvdisplay $pv
+
+read -p "What is the name of the Volume Group you want to create?	" vg
+
+vgcreate $vg $pv
+vgs $vg
+vgdisplay $vg
+
+read -p "What is the name of the Logical Volume you want to create?	" lv
+read -p "What is the size of the Logical Volume you want to create?	" lv_size
+
+lvcreate -L $lv_size -n $lv $vg
+lvs /dev/$vg/$lv
+lvdisplay /dev/$vg/$lv
+
+echo "The Logical Volume was created. Maybe you would like to mount a file system now..."
+

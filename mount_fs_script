@@ -1,0 +1,31 @@
+#!/bin/bash
+
+Echo "Lets mount a file system."
+
+read -p "What file system would you like to use?
+xfs
+ext4	
+
+" filesystem
+echo " "
+echo "You chose $filesystem"
+
+read -p "What partition would you like to format the file system on?	" partition
+
+read -p "Where would you like to mount it? /mnt/ is a temporary option.     " mount_point
+
+if [ $filesystem -eq xfs ]
+   then 
+	mkfs.xfs $partition
+	mkdir $mount_point
+	mount $partition $mount_point
+	df -hT
+   else
+	mkfs.ext4 $partition
+	mkdir $mount_point
+	mount $partition $mount_point
+	df -hT	
+fi
+
+
+echo "If you want to mount this filesystem at BOOT edit fstab"

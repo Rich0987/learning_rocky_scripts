@@ -1,0 +1,24 @@
+#!/bin/bash
+
+echo "Lets create a swap file."
+
+read -p "What is the absolute path of the swap file you want to make?	" swapfile_path
+read -p "How many Gigabytes do you want to make the swap space?	" swap_multiplier
+
+touch $swapfile_path
+ 
+dd if=/dev/zero of=$swapfile_path bs=1G count=$swap_multiplier 
+
+
+
+chmod 0600 $swapfile_path
+
+mkswap $swapfile_path
+
+swapon $swapfile_path
+
+swapon -s
+
+echo "Add the swap to fstab."
+
+./fstab_script

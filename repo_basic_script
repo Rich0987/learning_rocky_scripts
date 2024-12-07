@@ -1,0 +1,21 @@
+#!/bin/bash
+
+echo "The default repository location is /etc/yum.repo.d/rename_me.repo"
+repolocation=/etc/yum.repos.d/rename_me.repo
+
+read -p "Enter the short name: " short_name 
+echo "[$short_name]" >> $repolocation
+
+read -p "Enter the long name: " long_name
+echo "name=$long_name" >> $repolocation
+
+read -p "Enter the base url: " base_url
+echo "baseurl=$base_url" >> $repolocation
+
+read -p "Enter 1/on or 0/off for gpgcheck: " gpgcheck
+echo "gpgcheck=$gpgcheck" >> $repolocation
+
+echo "Your repo config is complete, please rename it before using this script again."
+
+cd /etc/yum.repos.d/
+
