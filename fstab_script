@@ -1,0 +1,24 @@
+#!/bin/bash
+
+echo "Lets create an fstab entry"
+
+lsblk -f
+df -hT
+
+read -p "For the first field enter the UUID, Device location, Swap file location, or the Server Location: " first_field
+
+read -p "For the second field enter the mount point for the file system or 'none' for swap: " second_field
+
+read -p "For the third field enter the file system type. Eg. xfs, ext4, iso9660, nfs, or swap: " third_field
+
+read -p "For the fourth field enter the mount point options 'defaults' or ro for example: " fourth_field
+
+read -p "For the fifth field enter 0 for don't dump or 1 for dump: " fifth_field
+
+read -p "For the sixth field decide is fsck will be run on the system. 0-no, 1-yes, root file system, or 2-yes, other file systems you want checked after the root fs: " sixth_field
+
+echo "$first_field     $second_field     $third_field     $fourth_field     $fifth_field     $sixth_field" >> /etc/fstab
+
+
+echo "The fstab file has been updated with the following:"
+echo "$first_field     $second_field     $third_field     $fourth_field     $fifth_field     $sixth_field"
