@@ -1,0 +1,61 @@
+#!/bin/bash
+
+####### LOOK INTO SELINUX AND FIREWALLD issues...
+
+echo "Lets set up Samba"
+
+### samba/SMB installs
+
+read -p " What Directory do you want to share?	" samba_server_share
+
+### configure the /etc/samba/smb.conf file
+
+mv /etc/samba/smb.conf /etc/samba/smb_old.conf
+
+### start with a blank slate
+read -p "What do you want to name the shares 'short name'? Try the same name as the directory being shared.	" short_name
+read -p "What range of IP's do you want to allow access to the share? eg. 192.168.0.0/16...	" ip_range
+
+echo "
+[global]
+server role = standalone server
+map to guest = Bad User ### faild login turns into guest user... would put Never for failed login or anonamous user
+usershare allow guests = yes
+host allow = $ip_range   ### anything starting with 192.168. will be allowed
+host deny = 0.0.0.0/0   ### denies anything not in the allow range
+
+[$short_name]
+comment = this is just a test share
+path = $samba_server_share
+read only = no
+guest ok = yes
+force user = rsmedberg
+force group = rsmedberg
+" > /etc/samba/smb.conf
+
+testparm   ### make sure the config file works!
+
+if [ $? -eq 0 ]
+     then
+	     echo "Testparm of the config was good"
+     else 
+	     echo "You need to reconfigure the smb.conf file"
+fi
+
+
+systemctl restart smb
+systemctl status smb
+
+### WINDOWS MACHINE SETUP NOW... make sure it has SMB enabled and map the share to windows...
+
+### Next part is for linux server to linux client setup
+
+### CLIENT ###
+
+read -p "Where do you want to mount the Samba share on the client?	" client_mount
+mkdir -p $client_mount
+read -p "What is the Hostname or IP of the Samba server?	" server_ip
+mount -t cifs //$server_ip/testshare	/$client_mount
+
+
+
