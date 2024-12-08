@@ -1,0 +1,43 @@
+#!/bin/bash
+
+### setup on server
+### maybe add in dnf installs for server side
+
+echo "First we will set up the server's NFS"
+
+read -p "What NFS server directory do you want to share?	"	nfs_server_share
+read -p "What is the hostname or IP of the client(s) you want to share to? '*' for every host	"	client_ip
+read -p "What permissions do you want the directory to have? ro, rw, sync, no_root_squash...	"	server_side_perms
+
+echo "$nfs_server_share		$client_ip($server_side_perms)" >> /etc/exports
+
+exportfs -avr
+
+### maybe configure the firewall rules
+
+
+
+echo "Now we will set up the clients NFS"
+
+### ssh from server to client to setup client
+
+ssh $user@$client_ip
+
+### maybe add more dnf installs for client side
+
+showmount -e ### to see what client can pull
+
+### setup NFS on client
+
+read -p "Where do you want to mount the NFS server share on this client device?	" mount_point
+read -p "What is the Hostname or IP address of the NFS server?	" server_ip
+
+mkdir -p $mount_point
+mount  $server_ip:$nfs_server_share	$mount_point
+
+echo "Lets create an fstab entry"
+
+echo "$server_ip:$nfs_server_share	$mount_point	nfs	defaults	0	0" >> /etc/fstab
+echo "$server_ip:$nfs_server_share	$mount_point	nfs	defaults	0	0"
+
+#./fstab_script
