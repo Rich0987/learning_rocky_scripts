@@ -1,0 +1,89 @@
+#!/bin/bash
+
+#scp -v file.txt user@host1.com:/path/to/directory
+#scp -v user@host1.com:/path/to/directory/file.txt ~/Documents/pulled/
+
+#sftp username@hostname
+#sftp
+
+#ftp username@hostname
+#ftp
+
+#rsync -v ~dir1 username@remote_host:destination_directory
+#rsync -v username@remote_host:/home/username/dir1 place_to_sync_on_local_host
+
+echo "In this script you can choose from SCP/RSYNC/SFTP/FTP..."
+read -p "What method of file transfer whould you like to use?	" method
+
+read -p "If this is LOCAL to REMOTE host enter 1
+If this is a transfer from a REMOTE host to your LOCAL machine enter 2	" direction
+
+
+
+
+#########     SCP
+
+if [ scp1 = $method$direction ]
+then 
+	echo "example: scp -v file.txt user@host1.com:/path/to/directory"
+	read -p "What file do you want to send to the server?	" send
+	read -p "Where do you want to put it on the server?	" receive
+	scp -v $send $receive
+
+elif [ scp2 = $method$direction ]
+then
+	  echo "example: scp -v user@host1.com:/path/to/directory/file.txt ~/Documents/pulled/"
+        read -p "What file do you want from the server?	" send
+        read -p "Where do you want to put it on your local host?	" receive
+        scp -v $send $receive
+
+#########     rsync
+
+elif [ rsync1 = $method$direction ]
+then
+
+	echo "rsync -v ~dir1 username@remote_host:destination_directory"
+        read -p "What file do you want to send to the server?   " send
+        read -p "Where do you want to put it on the server?     " receive
+        rsync -v $send $receive
+
+elif [ rsync2 = $method$direction ]
+then
+	
+	echo "rsync -v username@remote_host:/home/username/dir1 place_to_sync_on_local_host"
+        read -p "What file do you want from the server	" send
+        read -p "Where do you want to put it on your local host?	" receive
+        rsync -v $send $receive
+
+#########     sftp
+
+elif [ sftp1 || sftp2 = $method$direction ]
+then
+
+	echo "Example: sftp username@hostname"
+	echo "Use the commands to pull or push."
+	read -p "What is the host you want to connect to?	" host
+	sftp $host
+
+
+#########     ftp
+
+elif [ ftp1 || ftp2 = $method$direction ]
+then
+
+        echo "Example: sftp username@hostname"
+        echo "Use the commands to pull or push."
+        read -p "What is the host you want to connect to?       " host
+	ftp $host
+
+else 
+	echo "We have no match!!!"
+
+
+	fi
+##################################################################################
+
+echo "Check that it worked."
+
+
+
