@@ -1,0 +1,44 @@
+#!/bin/bash
+
+### add app installs
+
+echo "Let's create a Stratis Pool."
+
+read -p "What would you like to name the pool?	" pool_name
+read -p "What block device would you like to use?	" block_dev_1    ###maybe set a loop to add more block devices
+
+stratis pool create $pool_name $block_dev_1
+
+read -p "Would you like to add another block device?	" block_dev_2
+
+stratis pool add-data $pool_name $block_dev_2
+stratis pool list
+
+echo "Let's add a stratis file system to the pool."
+read -p "What would you like to name the FS?	" stratis_fs
+
+stratis filesystem create $pool_name $stratis_fs
+
+echo "Now we will create a directory to mount it to."
+
+read -p "Where would you like to mount to?	" mount_point
+mkdir -p $mount_point
+
+mount /dev/stratis/$pool_name/$stratis_fs $mount_point
+
+echo "Now lets create a snapshot of the pool."
+
+stratis filesystem snapshot $pool_name $stratis_fs stratis_fs-snap
+
+stratis filesystem list
+stratis pool list
+stratis blockdev list $pool_name
+
+echo "Completed, dont forget to configure fstab"
+echo "/dev/stratis/$pool_name/$stratis_fs	$mount_point	xfs	x-systemd.requires=stratisd.service	0	0"
+echo "/dev/stratis/$pool_name/$stratis_fs       $mount_point    xfs     x-systemd.requires=stratisd.service     0       0" >> /etc/fstab
+
+systemctl daemon-reload
+mount -a
+
+
