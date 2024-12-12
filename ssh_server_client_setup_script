@@ -1,0 +1,54 @@
+#!/bin/bash
+
+
+### OpenSSH
+
+
+# server side:
+
+#touch ~/.ssh/authorized_keys
+
+### client side:
+
+read -p "What is the IP of the client" client
+
+ssh $USER@$client
+
+touch ~/.ssh/config
+chmod 600 ~/.ssh/config
+
+echo "Now we will get the clients private key and share the public key with the server"
+echo "Performing ssh-keygen"
+ssh-keygen
+
+read -p "What is the path of the public key?" pub_key
+
+
+
+touch ~/$USER/.ssh/config
+
+#Host
+#       HostName
+#       Port
+#       User
+#       IdentifyFile
+
+
+
+echo "Now we neet to copy the public key to the server"
+read -p "What is the IP of the server" server
+
+echo "Running ssh-copy-id"
+ssh-copy-id $USER@$server
+
+
+echo "This will be stored under the users home directory .ssh/authorized_keys file on the server"
+ssh $USER@$server
+chmod 600 ~/.ssh/authorized_keys
+
+Echo "Now we will only allow keys to authenticate the SSH connection"
+
+sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/g' /etc/ssh/sshd_config
+
+systemctl reload sshd.service
+
