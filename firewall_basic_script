@@ -29,7 +29,7 @@ elif [ $service_port = port ]
 
 else 
 	read -p "What is the source IP address?     " ip_address
-	echo "firewall-cmd $perm --add-rich-rule='rule family=ipv4 source address=$ip_address $ip_rule'"
+	eval "firewall-cmd $perm --add-rich-rule='rule family=ipv4 source address=$ip_address $ip_rule'"
 fi
 
 
