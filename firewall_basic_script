@@ -1,0 +1,47 @@
+#!/bin/bash
+
+###   firewall-cmd --permanent --add-service=http 
+###   firewall-cmd --permanent --add-port=443/tcp
+
+###   firewall-cmd --permanent --add-rich-rule rule='family="ipv4" source address="192.168.2.2" accept'
+###        REJECT is when you want the other end to know the port us unreachable (use for connections inside lan)
+###        DROP makes the connection appear to be an unoccupied IP address ((use for connections from the internet)
+
+###################################################################################################################
+
+
+echo "Lets set up a firewall rule."
+read -p "Type permanent if you want the rule to be permenent if not press enter to leave it blank.	" perm
+
+read -p "Are we adding a SERVICE or PORT? Type service or port:		" service_port
+read -p "Are we setting up an IP rule to ACCEPT, REJECT, or DROP a connection? Type accept, reject, drop, or no:	" ip_rule
+
+
+if [ $service_port = service ]
+   then 
+	read -p "What service do you want to add?	" service
+	firewall-cmd $perm --add-service=$service
+
+elif [ $service_port = port ]
+   then 
+	read -p "What is the port/protocol you want to add?	" port
+	firewall-cmd $perm --add-port=$port
+
+else 
+	read -p "What is the source IP address?     " ip_address
+	echo "firewall-cmd $perm --add-rich-rule='rule family=ipv4 source address=$ip_address $ip_rule'"
+fi
+
+
+
+
+
+###   TESTING
+###   firewall-cmd --list-rich-rules
+###   firewall-cmd --list-all
+###   firewall-cmd --get-services
+###   firewall-cmd --list-ports
+
+###   firewall-cmd --reload
+
+###   journalctl -u firewalld
