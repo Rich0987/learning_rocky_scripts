@@ -1,0 +1,40 @@
+#!/bin/bash
+
+
+finished=0
+
+while [ $finished -ne 1 ]
+do
+	
+	echo "What command would you like to use to troubleshoot?"
+
+	
+	echo "1 - ping - Checks if the remote server is reachable using ICMP protocol. It also shows the round trip time of packets."
+	echo "2 - ip - A replacement for ifconfig. Can be used to configure and retrieve information about systems network interfaces."
+	echo "3 - ss - Primarily used to check the connections and PID on ports and Unix sockets."
+	echo "4 - mtr - mtr is a mix of ping and traceroute. It also provides additional information like intermediate hosts and responsiveness."
+	echo "5 - dig - Helps you get the DNS records associated with a domain name."
+	echo "6 - tcpdump - This utility helps you to capture network packets and analyze them for network issues."
+	echo "7 - Exit Script."
+
+
+	read trouble_tool;
+
+	case $trouble_tool in
+
+		1) read -p "What is the IP you want to ping?" ip
+			ping $ip;;
+		2) ip -c a;;
+		3) ss -tnlup;;
+		4) read -p "What is the device you are trying to reach?" dev
+			mtr $dev;;
+		5) read -p "What DNS ip or hostname are you trying to resolve?" dns
+			dig $dns;;
+		6) tcpdump -n port 53;;
+		7) finished=1;;
+		*) echo "You didnt enter an appropriate choice."
+	esac
+
+done
+
+echo "Please come again!"
