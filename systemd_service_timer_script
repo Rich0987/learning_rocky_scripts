@@ -1,0 +1,52 @@
+#!/bin/bash
+
+read -p "What do you want to name the service/timer?	" script_name
+
+read -p "Give a description of the script you want to run as a service.	     " service_description
+read -p "What is the script you want to run as a service?	" script
+
+read -p "Give a description of the timer.	" timer_description
+read -p "How soon after boot do you want the service to run? eg. 1min	" boot
+read -p "How often do you want the service to run? eg. 1min	" run
+
+
+
+
+
+
+
+###   service
+echo "
+[Unit]
+Description=$service_description
+
+[Service]
+ExecStart=$script
+
+#[Install]
+
+" > /etc/systemd/system/$script_name.service
+
+
+
+###   timer
+echo "
+[Unit]
+Description=$timer_description
+
+[Timer]
+OnBootSec=$boot
+OnUnitActiveSec=$run
+
+[Install]
+WantedBy=timers.target
+" > /etc/systemd/system/$script_name.timer
+
+
+systemctl daemon-reload 
+
+systemctl enable $script_name.timer
+
+systemctl list-timers --all
+
+###journalctl -u $script_name
