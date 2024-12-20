@@ -1,0 +1,136 @@
+#!/bin/bash
+
+
+read -p "What do you want to name the service/timer?    " script_name
+read -p "Give a description of the script you want to run as a service.      " service_description
+read -p "What is the script you want to run as a service?       " script
+
+read -p "Give a description of the timer.       " timer_description
+
+
+
+###   service
+echo "
+[Unit]
+Description=$service_description
+
+[Service]
+ExecStart=$script
+
+#[Install]
+
+" > /etc/systemd/system/$script_name.service
+
+
+
+
+#############################   TIMER   #####################################
+### sed -i 's/#option=$details1/option=$details1/g'
+### does it work in a script??? or do I need to make a file to be edited
+### make file echo in contents first then sed it???
+###   timer
+
+
+finished=0 
+
+while [ $finished -ne 1 ]
+
+do
+
+echo "What options would you like to set for the timer?"
+
+echo "1 - OnBootSec - Schedule task relatively to the system boot time"
+echo "2 - OnUnitActiveSec - Schedule the task relatively to the last time the service unit was active"
+echo "3 - OnCalendar - Schedule task with calendar date"
+echo "4 - OnActiveSec - Schedule the task relatively to the time when the timer unit itself is activated"
+echo "5 - OnStartupSec - Schedule the task relatively to the time when Systemd started"
+echo "6 - OnUnitInactiveSec - Schedule the task relatively to the last time the service unit was inactive"
+echo "7 - Persistent - When activated, it triggers the service immediately if it missed the last start time"
+echo "8 - Exit the script"
+
+read option;
+
+case $option in 
+
+	1) read -p "How soon after boot do you want the service to run? eg. 1min	" boot;;
+	2) read -p "How soon after the service unit was active do you want to run the timer? eg. 1min	" run;;
+	3) read -p "Schedule the calendar time. OnCalendar events uses the following format: DayOfWeek Year-Month-Day Hour:Minute:Second	" cal;;
+	4) read -p "How soon after the timer unit is active do you want to start the timer? eg. 1min	" active;;
+	5) read -p "How soon after systemd starts do you want to run the timer?	eg. 1min    " startup;;
+	6) read -p "Based on the last time the service unit was started, when do you want the timer to run? eg. 1min    " inactive;;
+	7) read -p "You want this to run immediately if missed? enter yes:	" persistent;;
+	8) finished=1 ;;
+
+esac
+
+echo "
+[Unit]
+Description=$timer_description
+
+[Timer]
+#OnBootSec=$boot
+#OnUnitActiveSec=$run
+#OnCalendar=$cal
+#OnActiveSec=$active
+#OnStartupSec=$startup
+#OnUnitInactiveSec=$inactive
+#Persistent=true
+
+[Install]
+WantedBy=timers.target
+" > /etc/systemd/system/$script_name.timer
+
+done
+####################################################################################
+   if [ -n "$boot" ]
+   	then
+	     sed -i 's/#OnBootSec/OnBootSec/' /etc/systemd/system/$script_name.timer
+        else sed -i 's/#OnBootSec=/ /' /etc/systemd/system/$script_name.timer     
+      fi
+   if [ -n "$run" ]
+        then
+             sed -i 's/#OnUnitActiveSec/OnUnitActiveSec/' /etc/systemd/system/$script_name.timer
+        else sed -i 's/#OnUnitActiveSec=/ /' /etc/systemd/system/$script_name.timer     
+
+      fi
+   if [ -n "$cal" ]
+        then
+             sed -i 's/#OnCalendar/OnCalendar/' /etc/systemd/system/$script_name.timer
+        else sed -i 's/#OnCalendar=/ /' /etc/systemd/system/$script_name.timer     
+
+      fi
+   if [ -n "$active" ]
+        then
+             sed -i 's/#OnActiveSec/OnActiveSec/' /etc/systemd/system/$script_name.timer
+        else sed -i 's/#OnActiveSec=/ /' /etc/systemd/system/$script_name.timer     
+
+      fi
+   if [ -n "$startup" ]
+        then
+             sed -i 's/#OnStartupSec/OnStartupSec/' /etc/systemd/system/$script_name.timer
+        else sed -i 's/#OnStartupSec=/ /' /etc/systemd/system/$script_name.timer     
+
+      fi
+   if [ -n "$inactive" ]
+        then
+             sed -i 's/#OnUnitInactiveSec/OnUnitInactiveSec/' /etc/systemd/system/$script_name.timer
+        else sed -i 's/#OnUnitInactiveSec=/ /' /etc/systemd/system/$script_name.timer     
+
+      fi
+
+   if [ yes = $persistent ]
+        then 
+             sed -i 's/#Persistent=true/Persistent=true/' /etc/systemd/system/$script_name.timer
+        else sed -i 's/#Persistent=true/ /' /etc/systemd/system/$script_name.timer     
+
+      fi
+
+systemctl daemon-reload
+
+systemctl enable $script_name.timer
+
+systemctl list-timers --all
+
+###journalctl -u $script_name
+
+###   V3 maybe add a mailto/email.service
