@@ -1,0 +1,45 @@
+#!/bin/bash
+
+
+lvdisplay
+
+
+read -p "What is the path of the logical volume you want to shrink and restore?    " $lv_path
+read -p "What is the name of the volume group?	" $vg
+read -p "What is the name of the logical volume?	" $lv
+read -p "What is the size you want to shrink to?        " $shrink_size
+
+
+lvdisplay $lv_path
+
+read -p "What is the path you would like to save the xfs dump file to?	" dump_location
+
+df -hT
+
+read -p "What is the path of the file system you want to shrink?	" fs_being_dumped
+
+xfsdump -f $dump_location $fs_being_dumped
+
+
+
+umount $fs_being_dumped
+lvremove -f $lv_path
+
+
+lvcreate -L $shrink_size -n $lv $vg
+
+lvdisplay
+
+mkfs.xfs $lv_path
+
+read -p "Where do you want to mount the dumped file system?	" mount_point
+
+mkdir -p $mount_point
+
+mount $lv_path $mount_point
+
+
+xfsrestore -f $dump_location $mount_point
+
+echo "Make an fstab entry."
+
