@@ -14,7 +14,7 @@ read -p "What partition would you like to format the file system on?	" partition
 
 read -p "Where would you like to mount it? /mnt/ is a temporary option.     " mount_point
 
-if [ $filesystem -eq xfs ]
+if [ $filesystem = xfs ]
    then 
 	mkfs.xfs $partition
 	mkdir $mount_point
