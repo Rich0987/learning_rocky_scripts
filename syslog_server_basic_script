@@ -1,0 +1,74 @@
+#!/bin/bash
+
+#syslogserver setup
+
+###   SERVER SETUP   ###
+
+#   /etc/rsyslog.conf
+
+echo "Let's set up the rsyslog on the server side."
+
+read -p "Do you want UDP or TCP?" protocol
+
+if [ $protocol = tcp ]
+   then 
+	sed -i 's/#module(load="imtcp")/module(load="imtcp")/' /etc/rsyslog.conf
+	sed -i 's/#input(type="imtcp" port="514")/input(type="imtcp" port="514")/' /etc/rsyslog.conf
+
+   else
+	sed -i 's/#module(load="imudp")/module(load="imudp")/' /etc/rsyslog.conf
+        sed -i 's/#input(type="imudp" port="514")/input(type="imudp" port="514")' /etc/rsyslog.conf
+fi
+
+
+#   uncomment
+
+# Provides UDP syslog reception
+# for parameters see http://www.rsyslog.com/doc/imudp.html
+#module(load="imudp") # needs to be done just once
+#input(type="imudp" port="514")
+
+# Provides TCP syslog reception
+# for parameters see http://www.rsyslog.com/doc/imtcp.html
+#module(load="imtcp") # needs to be done just once
+#input(type="imtcp" port="514")
+
+#   add location to save the logs
+
+echo "Logs will be stored in /var/log/system%HOSTNAME%.log"
+
+echo '$template DynFile, "/var/log/system%HOSTNAME%.log"' >> /etc/rsyslog.conf
+
+#   $template DynFile, "/var/log/system%HOSTNAME%.log"
+
+   systemctl restart rsyslog
+
+################################################################################################
+
+###   CLIENT SETUP   ###
+
+#   /etc/rsyslog.conf
+
+echo "Now we will configure the client side."
+
+read -p "What is the IP of the server?	" serverIP
+
+#uncomment:
+
+
+### check if sed works with double quotes...
+
+#sed -i 's~#Target="remote_host" Port="XXX" Protocol="tcp"~Target="$serverIP" Port="514" Protocol="$protocoil"~' /etc/rsyslog.conf
+
+echo "Target='$serverIP' Port='514' Protocol='$protocol'" >> /etc/rsyslog.conf
+
+#action(type="omfwd"
+
+   systemctl restart rsyslog
+
+
+###troubleshooting
+#	add port to both server and client in firewall-cmd
+#	logger "hello just testing"    times 3....
+
+#	less -f /var/log/messages
