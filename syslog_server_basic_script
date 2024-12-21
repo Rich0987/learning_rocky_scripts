@@ -60,7 +60,9 @@ read -p "What is the IP of the server?	" serverIP
 
 #sed -i 's~#Target="remote_host" Port="XXX" Protocol="tcp"~Target="$serverIP" Port="514" Protocol="$protocoil"~' /etc/rsyslog.conf
 
-echo "Target='$serverIP' Port='514' Protocol='$protocol'" >> /etc/rsyslog.conf
+echo "*.* @@$serverIP:514" >> /etc/rsyslog.conf
+#########   or
+#echo "Target='$serverIP' Port='514' Protocol='$protocol'" >> /etc/rsyslog.conf
 
 #action(type="omfwd"
 
