@@ -4,9 +4,9 @@
 lvdisplay
 
 
-read -p "What is the name of the volume group?  " $vg
-read -p "What is the name of the logical volume?        " $lv
-read -p "What is the size you want to shrink to?        " $shrink_size
+read -p "What is the name of the volume group?  " vg
+read -p "What is the name of the logical volume?        " lv
+read -p "What is the size you want to shrink to?        " shrink_size
 
 
 
