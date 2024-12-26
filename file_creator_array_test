@@ -1,0 +1,16 @@
+#!/bin/bash
+
+
+read -p "Enter 4 names:	" name1 name2 name3 name4
+
+names=(
+	"$name1"
+	"$name2"
+	"$name3"
+	"$name4"
+)
+
+for name in "${names[@]}"
+do
+	echo "Hello $name"
+done
