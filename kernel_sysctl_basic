@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+echo "KERNEL PING OPTIONS"
+
+sysctl --all | grep ipv4.icmp 
+
+read -p "Copy and paste what you want to permanantly change with the number altered.	" change
+
+echo $change >> /etc/sysctl.conf
+
+sysctl --system #to reload and check
+
+cat /etc/sysctl.conf
+
+
+echo "sysctl --all results:"
+sysctl --all | grep "$change" 
+
+
