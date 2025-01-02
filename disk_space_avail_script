@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+df -hT
+
+echo "Percentage of disk space that has been used per file system."
+read -p "What file system do you want to check:	    " fsystem
+
+
+used=$(df -hT | grep ${fsystem} | awk '{print $6}' | sed 's/%//')
+
+alert=90
+
+
+if [ ${used} -ge ${alert} ]; then
+     echo "${used} of the file system has been used. Please make space." 
+	     # | mail -s "Used file system space" email_name@gmail.com
+   else   
+     echo "There are no alerts."
+
+fi
+
+
