@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+echo "We will be setting up POSTFIX fo we can send emails and alerts to a gmail account."
+
+# make sure postfix is installed
+rpm -qa | grep postfix
+# if not install it...
+
+#have a google app password ready
+echo "You will want to have a Google App Password."
+echo "Look in your google security settings. 2pv will need to be enabled."
+
+#Create a the file /etc/postfix/sasl/sasl_passwd and add your Gmail address and app password to it like this:
+#[smtp.gmail.com]:587 microdomainz@gmail.com:qodjkozoaqdmyqll
+
+
+read -p "What is the email you want to use?	" email
+read -p "What is the app password?	" passwd
+
+mkdir /etc/postfix/sasl/
+touch /etc/postfix/sasl/sasl_passwd
+echo "[smtp.gmail.com]:587 "${email}"@gmail.com:"${passwd}"" >> /etc/postfix/sasl/sasl_passwd
+
+postmap /etc/postfix/sasl/sasl_passwd
+
+chmod 0600 /etc/postfix/sasl/sasl_passwd /etc/postfix/sasl/sasl_passwd.db
+
+echo "Confirmation that the sasl files were created..."
+ls -l /etc/postfix/sasl/
+
+echo "
+#### modifications to the file
+
+relayhost = [smtp.gmail.com]:587
+
+# Enable SASL authentication
+
+smtp_sasl_auth_enable = yes
+smtp_sasl_security_options = noanonymous
+smtp_sasl_password_maps = hash:/etc/postfix/sasl/sasl_passwd
+smtp_tls_security_level = encrypt
+
+" >> /etc/postfix/main.cf
+
+sed -i 's/smtp_tls_security_level = may/#smtp_tls_security_level = may/' /etc/postfix/main.cf
+
+
+systemctl start postfix 
+systemctl restart postfix
+systemctl enable postfix
+
+echo "Send a test email with the "sendmail" command"
+
+
