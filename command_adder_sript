@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+echo "Do you have a command that isn't working in other directories?
+Would you like to run the command from any directory?
+Look no further."
+echo ""
+read -p "What is the location of the command / where are you able to run it from?
+Give the full/absolute path:
+" command_path
+
+PATH=$PATH:${command_path}
+
+
+echo "The path/command was added to the PATH environmental variable... try it out."
+
+echo $PATH
+
+
