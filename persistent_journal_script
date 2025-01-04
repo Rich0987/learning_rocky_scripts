@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+#create the var/log/journal directory 
+#or
+#make a config file and configure other options
+
+echo "Creating Journal Log for persistent storage."
+
+#this is where you store the journal configs
+mkdir /etc/systemd/journald.conf.d/
+
+journal_conf=/etc/systemd/journald.conf.d/
+
+
+#storage options for the journal log:
+touch ${journal_conf}storage.conf
+
+echo "[Journal]
+Storage=persistent" >> ${journal_conf}storage.conf
+
+
+###options
+
+read "What do you want to set the Max File Size to? Eg. 5M,8G,2T:      " size
+echo "SystemMaxFileSize=${size}" >> ${journal_conf}storage.conf
+
+###add other options if needed...
+###add journal file entry for rotating the log in /etc/logrotate.d/
+
+
+
+
+
