@@ -13,6 +13,6 @@ PATH=$PATH:${command_path}
 
 echo "The path/command was added to the PATH environmental variable... try it out."
 
-echo $PATH >> ~/.bashrc
+echo PATH=$PATH >> ~/.bashrc
 
 
