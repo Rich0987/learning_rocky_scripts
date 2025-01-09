@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# Path to the input file
+USER_FILE="users.txt"
+
+# Check if the file exists
+if [[ ! -f "$USER_FILE" ]]; then
+    echo "Error: File '$USER_FILE' not found!"
+    exit 1
+fi
+
+# Read the file line by line
+while IFS=' ' read -r username group password; do
+    # Skip empty lines or invalid entries
+    if [[ -z "$username" || -z "$group" || -z "$password" ]]; then
+        echo "Skipping invalid entry: $username $group $password"
+        continue
+    fi
+
+    # Check if the group exists, if not, create it
+    if ! getent group "$group" > /dev/null 2>&1; then
+        echo "Creating group: $group"
+        sudo groupadd "$group"
+    else
+        echo "Group '$group' already exists."
+    fi
+
+    # Check if the user exists, if not, create it
+    if ! id -u "$username" > /dev/null 2>&1; then
+        echo "Creating user: $username with group: $group"
+        sudo useradd -m -g "$group" "$username"
+    else
+        echo "User '$username' already exists."
+    fi
+
+    # Set the default password for the user
+    echo "$username:$password" | sudo chpasswd
+
+    # Force the user to change their password on the first login
+    sudo chage -d 0 "$username"
+
+done < "$USER_FILE"
+
+echo "User creation and password setup complete."
