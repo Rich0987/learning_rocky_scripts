@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+read -p "What file do you want to read the info from?	" file
+
+while IFS=' ' read -r username group password; do
+
+	useradd $username -G $group -p $password
+
+done < $file
+
+# temp password shows in plain-text
+
+
