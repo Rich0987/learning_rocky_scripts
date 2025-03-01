@@ -1,0 +1,655 @@
+id testuser
+whoami
+/etc/passwd
+
+su vs su -
+(use your shell vs the users shell)
+
+_________________________________________
+
+
+grep -i "Mario" mario_characters.txt
+	-i = case insensitive 
+	-c = count
+	-n = line number
+	-v = exclude/inverse
+	-e = patterns/multiple strings
+	-r = recursive search
+grep -e "pattern1" -e "pattern2"
+
+__________________________________________
+
+
+regex(7)
+
+_________________________________________
+
+
+sed -i "s/mario/Luigi/g" file.txt
+	set In-place/permanent, the String, and Globally
+
+awk -F "," '{print $1, $3}' team.csv
+	field seperated by comma, print column 1 and 3
+
+awk -F ',' '$2 > 20 {print $1}' team.csv
+	if age in column 2 is greater than 20
+	print name in column 1
+
+_______________________________________________
+
+
+man
+mandb
+apropos
+--help
+
+___________________________________________
+
+
+files
+	mkdir ~/newdir
+		/home/rsmedberg/newdir
+	touch ~/newdir/file.txt
+
+tree
+
+	cp file.txt /etc/newlocation/
+	cp -r   
+		to recursively copy a directory
+	mv 
+		used to rename for the most-part
+	rm ~/*.txt
+	rmdir
+		removes empty directory
+	rm -r 
+		removes/deletes directory
+
+_______________________________________________
+
+
+find /tmp -user rsmedberg
+	  -name "file1.txt"
+
+find /etc -type f -size +5k -size -100k -exec cp {} /tmp/copyhere/ \;
+
+________________________________________________
+
+
+hard and soft links 
+
+ln 
+	hard/same inode number (ls -li or stat)
+	needs to be on the same filesystem
+ln -s
+	soft/like a shortcut
+
+____________________________________________
+
+
+<, > (overwrite), >> (append), 2> (error), |
+	2> /dev/null
+&&
+	run this command, then if it succeeds,
+	run the next one
+
+_____________________________________________
+
+
+tar -cavf /tmp/archive.tar.gz /etc
+			  .bz2 /etc
+	-a if name ends in the compression type
+tar -cjvf
+tar -czvf 
+
+gzip file.tar 
+bzip2 file.tar
+	extension will automatically join the name 
+	
+_______________________________________________
+
+
+remote copy
+
+files
+scp test.txt bender@10.10.2.3:/home/bender/
+
+directories
+rsync -avz srcdir/ bender@10.10.2.3:/home/bender/destdir/
+	*archive/verbose/compress
+	*anything in srcdir/ will be compressed and archived
+	 into destdir/
+
+sftp ipaddress
+	put
+	get
+	chmod
+	exit
+
+_____________________________________________________
+
+
+/etc/passwd 
+id billy
+/etc/shadow 
+
+useradd -s /sbin/nologin billy
+	-G groupname
+usermod -s /sbin/nologin billy
+	-aG groupname
+	-L billy           ...to lock (root only)
+		passwd -S billy    ...to see passwd status
+	-U billy    ...to unlock
+		passwd -u    ...to unlock (root only)
+userdel billy
+
+passwd billy
+
+______________________________________
+
+
+/etc/default/usradd
+	lists the default shell /bin/bash
+
+/etc/skel
+	what will be in a new users home directory
+
+______________________________________________
+
+
+chage
+	use for password expiration options
+
+
+/etc/login.defs
+	to make default changes to future user accounts
+	umask
+	chage
+		pass_max_days
+		pass_min_days
+		pass_warn_age
+
+/etc/security/pwquality.conf
+	minlen = 8     ...password length requirement
+
+__________________________________________________
+
+
+/etc/group
+groups billy
+
+groupadd groupname
+
+gpasswd -d billy
+	delete user from a group
+
+___________________________________________
+
+/etc/sudoers                ...man sudoers
+visudo
+
+testuser1 ALL=(ALL) NOPASSWD: ALL
+		(ALL:ALL)
+	    hostname=(runas-user:runas-group) command
+
+%testgroup1 ALL=/usr/bin/passwd, /usr/bin/useradd
+	      which passwd      which usradd
+
+________________________________________________
+
+
+#!/usr/bin/env bash
+or
+#!/bin/bash
+
+chmod +x
+./script1.sh or /home/rsmed/scripts/script1.sh
+
+man /bash
+
+_________________________________________________
+
+
+systemctl list-unit-files | grep service
+	will show all services, enabled and disabled
+
+vi test1.service
+	[Unit]
+	Description=Testing service creation
+	
+	[Service]
+	ExecStart=/bin/bash /home/rsmed/test1.sh
+	
+	[Install]
+	WantedBy=multi-user.target
+
+/etc/systemd/system/
+
+man systemd.service
+
+__________________________________________________
+
+
+journalctl
+
+/etc/system/journald.conf
+	Storage=persistent
+
+mkdir /var/log/journal
+
+systemctl restart systemd-journald
+
+journalctl --list-boots
+
+---may or may not have to do the following:
+chmod 2755 /var/log/journal
+chown root:systemd-journal
+
+____________________________________________
+
+
+/etc/logrotate.conf
+
+/etc/logrotate.d/
+
+_____________________________________
+
+
+-20 highest priority
+19 lowest priority
+
+nice -10 application    = 10
+nice --10 application   = -10
+renice -n 15 -p 77982       
+	or just do it in sudo top
+	     -g for group
+	     -u for user
+
+__________________________________________
+
+
+dnf install tuned -y
+tuned-adm recommend
+tuned-adm active   ... will not be the same as recommended
+tuned-adm profile  ...enter the recommended
+
+______________________________________________
+
+
+systmd target
+_
+systemctl get-default
+	graphical.target
+	multi-user.target
+systemctl set-default multi-user.target
+	this will be after reboot
+systemctl isolate multi-user.target
+	this will be the current session
+	this will not persist after reboot
+
+_____________________________________________________
+
+
+recover root
+
+rd.break
+
+mount -o remount,rw /sysroot/
+chroot /sysroot
+passwd
+touch /.autorelabel
+exit
+reboot
+
+__________________________________________
+
+
+partition disk   ...lsblk
+create file system
+make a mount point
+fstab for persistence  ...df -hT
+
+mount -a      ...to test
+
+_____________________________________
+
+
+swap 
+free -h
+
+mkswap /dev/sdb2
+swapon /dev/sdb2
+
+fstab
+
+_________________________________
+
+
+dnf install lvm2 -y
+
+pvcreate /dev/sda1 /dev/sda2
+pvs or pvdisplay
+
+vgcreate myvg /dev/sda1 /dev/sda2
+vgs or vgdisplay
+
+lvcreate -L 64m -n mylv myvg
+lvs or lvdisplay
+
+mkfs.ext4 /dev/myvg/mylv
+mount /dev/myvg/mylv /mnt/point
+fstab
+
+______________________________________
+
+
+vgextend: add physical volumes to a volume group
+lvextend: add space to a logical volume
+xfs_growfs  ...xfs
+resize2fs   ...ext4
+
+lvextend -r   ***...will auto resize file system and 
+		 logical volume in one shot***
+lvextend -r -L 7G /dev/myvg/mylv
+
+____________________________________________
+
+SERVER:
+
+dnf install nfs-utils
+mkdir -p /srv/nfs_share
+chown nfsnobody:nfsnobody /srv/nfs_share
+chmod 755 /srv/nfs_share
+
+/etc/exports
+/srv/nfs_share 10.8.69.0/24(rw,sync,no_root_squash)
+
+exportfs -avr
+
+CLIENT:
+
+dnf install nfs-utils
+showmount -e 10.8.69.146 
+mkdir /mnt/nfs_share
+mount 10.8.69.146:/srv/nfs_share /mnt/nfs_share
+
+fstab
+10.8.69.146:/srv/nfs_share  /mnt/nfs_share  nfs defaults  0 0
+
+____________________________________________________
+
+
+yum install https://d1.fedoraproject.org/pub/epel/...rpm -y
+/etc/yum.repos.d/
+
+yum repolist | grep epel
+
+yum update -y
+
+______________________________________________________
+
+
+autofs an nfs share
+
+CLIENT:
+
+showmount -e serverip
+
+dnf install autofs -y
+
+/etc/auto.master
+/-	/etc/auto.nfs
+
+mkdir -p /etc/auto.nfs
+/mnt/nfs_autofs	   -fstype=nfs,rw, serverip:/srv/shared
+
+systemctl enable --now autofs or restart
+
+_____________________________________________________
+
+
+crontab -e
+crontab -l 
+min hr day-of-mo mo day-of-week
+
+/ step value
+- range
+, value list separator
+* any value
+
+every 5 minutes = */5
+
+_____________________________________________________
+
+
+dnf install at -y
+
+atd service
+
+ctrl+d to save the at job
+
+atq   ...to query jobs
+
+atrm  ...to remove jobs
+
+____________________________________________
+
+dnf install openssh-server
+
+etc/ssh/sshd_config    ...for server config
+etc/ssh/ssh_config     ...for client config
+
+	***make a copy before editing***
+
+ssh-kegen      (-t (for type) rsa -b (for bits) 4096)
+	saves to: /home/rsmedberg/.ssh/
+	chmod 700 ~/.ssh
+	      600 ~/.ssh/authorized_keys
+
+ssh-copy-id -i /home/rsmedberg/.ssh/rsa.pub username@serverip
+	-i = identity file / .pub file
+
+_________________________________________________________
+
+
+nmtui
+ip, gateway, dns
+hostname
+activate a connection, * = up
+
+ip -c a
+
+________________________________________
+
+
+umask
+
+files 666
+dir   777
+
+umask 022 is 644 for files
+	     755 for dir
+
+edit in ~/.bashrc for single user
+or
+	/etc/bashrc -> /etc/profile.d/
+		for global umask
+
+____________________________________________
+
+
+selinux
+
+getsebool -a
+setsebool ftpd_anon_write on
+---this is persistent
+
+____________________________________________
+
+
+/etc/selinux/config 
+
+	to make enforcing
+		permissive
+		disabled   ...permanent 
+
+not perm...
+getenforcing
+setenforcing 0 false or 1 for true
+
+____________________________________________
+
+
+ls -lZ to see selinux context... 
+		type is the most important
+
+restorecon can fix a wrong type sometimes
+
+semanage is permanent (fcontext and port) are the most common
+semanage fcontext -a -t httpd_sys_content_t file-to-change.txt
+	man semanage-fcontext
+	run restorecon after fcontext
+
+chcon is not permanent 
+
+_______________________________________________________
+
+
+semanage port -a -t ssh_port_t -p tcp 8991
+	      -m to modify a port
+	semanage port --list
+	man semanage-port
+
+_______________________________________________________
+
+
+dnf install firewalld -y
+
+zone = what interfaces are assigned to... ens3 ens5
+firewall-cmd --set-default-zone=home
+	any new interfaces will be in this zone
+
+firewall-cmd --zone=home --change-interface=ens3
+	to change the zone of an interface
+
+firewall-cmd --get-active-zones
+
+_________________________________________________________
+
+
+firewall-cmd --get-services
+	firewall-cmd --permanent --add-service=http
+firewall-cmd --get-ports
+	firewall-cmd --permanent --add-port=443/tcp
+
+or to a specific zone:
+firewall-cmd --permanent --zone=public --add-service=http
+
+verify with:
+firewall-cmd --zone=public --list-all
+
+____________________________________________________________
+
+
+--new-zone=name-of-zone
+	to create new custom zone...
+	then --add-service=
+	     --add-port=
+	     --change-interfaces=
+	     --add-source=192.168.1.0/24
+		for allowing only a range of subnets
+--list-all ...to confirm
+
+___________________________________________________________
+
+
+dnf install podman -y
+
+
+podman pull nginx
+	to download a container file from a repository
+podman pull nginx:1.19 
+	use a tag to download a specific version
+
+podman tag nginx nginx:webserver
+	tag existing images
+
+podman images
+	will show the downloaded image and tag
+
+_____________________________________________________________
+
+
+podman run -d -p 8080:80 --name my_nginx_container nginx
+	run container detached in the background
+	port localhost-port:container-port
+		if you curl localhost:8080 it will 
+		connect you to port 80/container port
+
+podman stop my_nginx_container
+	not the same as deleting
+podman rm my_nginx_container
+	deletes a container
+
+_____________________________________________________________
+
+
+podman ps 
+	will show running container
+podman ps -a 
+	will show stopped containers also
+
+_____________________________________________________
+
+create podman image from scratch
+
+create a new directory... create or already have... inside
+Containerfile.txt
+	Capital 'C' and podman will find it
+
+podman build -t my-nginx-image .
+	-t for title and add a period. <-
+	look for the container file in my current dir
+podman run -d -p 9090:80 --name custom-nginx localhost/my-nginx-image
+						^ name from podman images
+curl http://localhost:9090
+
+_________________________________________________________________
+
+
+podman generate system --name mynginx --files
+
+man podman-generate-system
+	from #copy all the generated files...
+
+mv container-mynginx.service /etc/system/system/
+
+edit selinux context label
+	restorecon -v /etc/system/system/container-mynginx.service
+
+____________________________________________________________________
+
+
+persistent VOLUME for podman
+
+you have a directory on the local-machine
+and one on the container
+
+-v local-machine-path:container-path
+
+podman run --name bindcontainer -d -v /home/student/web-content:
+/usr/share/nginx/html -p 6060:80 localhost/myimage
+
+may need to change the context of the local-machine path... or 
+just add :Z to the end of each volume...
+
+/home/student/web-content/:/usr/share/nginx/html/:Z
+
+podman restart bindcontiner
+curl localhost:6060
+
+______________________________________________________________________
+
+
+
+
+
