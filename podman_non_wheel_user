@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+echo "use podman-login and podman search/pull to get the image you want."
+read -p "what is the image you want?" image
+podman pull $image
+
+podman images
+
+echo "navigate to users home directory and create the non-root directory:"
+read -p "what is the username" username
+
+mkdir -p /home/$username/.config/systemd/user
+#sudo chmod 666 $HOME/.config/systemd/user
+cd $HOME/.config/systemd/user
+
+loginctl enable-linger $username
+
+
+read -p "what do you want to name the container?" cont_name
+podman run -d --name $cont_name $image
+podman ps
+podman generate systemd --files --name $cont_name
+
+systemctl --user enable container-$cont_name.service
+systemctl --user status container-$cont_name.service
+
+echo "if errors starting the service occur, try deleting directories:
+	/tmp/storage-run-1000/containers/
+	/tmp/storage-run-1000/libpod/tmp/
+	then restart Podman"
