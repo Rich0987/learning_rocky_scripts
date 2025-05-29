@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+mdadm --create --verbose /dev/md0 --level=5 --raid-devices=3 /dev/sda1 /dev/sdb2 /dev/sdc1
+
+cat /proc/mdstat
+
+lsblk
+
+mkfs.ext4 -F /dev/md0
+
+mkdir -p /mnt/md0
+
+mount /dev/md0 /mnt/md0
+
+df -hT
+
+mdadm --detail --scan > /etc/mdadm.conf
+update-initramfs -u
+
+echo "Put it in fstab"
